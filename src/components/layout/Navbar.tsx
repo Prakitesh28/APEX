@@ -1,57 +1,17 @@
 "use client";
 
-import { useState, useEffect, useRef, useCallback } from "react";
-import { motion, useMotionValue, useSpring, AnimatePresence } from "framer-motion";
+import { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
-import { Menu, X, Sparkles, BookOpen, LayoutDashboard, Target, LineChart, Users } from "lucide-react";
+import { Menu, X } from "lucide-react";
 
 const navItems = [
-  { name: "Features", href: "/#features", icon: Sparkles },
-  { name: "Programs", href: "/#programs", icon: BookOpen },
-  { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
-  { name: "Looksmax", href: "/looksmax", icon: Target },
-  { name: "Progress", href: "/progress", icon: LineChart },
-  { name: "Community", href: "/#community", icon: Users },
+  { name: "FEATURES", href: "/#features" },
+  { name: "PROGRAMS", href: "/#programs" },
+  { name: "DASHBOARD", href: "/dashboard" },
+  { name: "LOOKSMAX", href: "/looksmax" },
+  { name: "PROGRESS", href: "/progress" },
 ];
-
-function MagneticWrapper({ children }: { children: React.ReactNode }) {
-  const ref = useRef<HTMLDivElement>(null);
-  const x = useMotionValue(0);
-  const y = useMotionValue(0);
-  const springX = useSpring(x, { stiffness: 150, damping: 15 });
-  const springY = useSpring(y, { stiffness: 150, damping: 15 });
-
-  const handlePointerMove = useCallback(
-    (e: React.PointerEvent) => {
-      if (!ref.current) return;
-      const rect = ref.current.getBoundingClientRect();
-      const centerX = rect.left + rect.width / 2;
-      const centerY = rect.top + rect.height / 2;
-      x.set((e.clientX - centerX) * 0.25);
-      y.set((e.clientY - centerY) * 0.25);
-    },
-    [x, y],
-  );
-
-  const handlePointerLeave = useCallback(() => {
-    x.set(0);
-    y.set(0);
-  }, [x, y]);
-
-  return (
-    <motion.div
-      ref={ref}
-      onPointerMove={handlePointerMove}
-      onPointerLeave={handlePointerLeave}
-      style={{ x: springX, y: springY }}
-      whileHover={{ scale: 1.05 }}
-      transition={{ type: "spring", stiffness: 300, damping: 20 }}
-      className="inline-block"
-    >
-      {children}
-    </motion.div>
-  );
-}
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
@@ -66,68 +26,48 @@ export default function Navbar() {
   return (
     <>
       <motion.nav
-        initial={{ y: -100 }}
-        animate={{ y: 0 }}
+        initial={{ y: -100, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.8, ease: "easeOut" }}
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
-          scrolled
-            ? "bg-black/70 backdrop-blur-xl border-b border-white/5 py-3"
-            : "bg-transparent border-b border-transparent py-5"
-        }`}
+        className="fixed top-6 left-0 right-0 z-50 flex justify-center px-4"
       >
-        <motion.div
-          initial={false}
-          animate={{ opacity: scrolled ? 1 : 0 }}
-          transition={{ duration: 0.3 }}
-          className="absolute bottom-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-[var(--color-red-glow)] to-transparent pointer-events-none"
-        />
-
-        <div className="container mx-auto px-6 flex justify-between items-center">
+        <div className={`transition-all duration-500 w-full max-w-4xl flex justify-between items-center px-6 py-3 ${scrolled ? "glass-pill" : "bg-transparent"}`}>
+          
+          {/* Logo */}
           <Link href="/">
-            <div className="flex items-center gap-2 cursor-pointer group">
-              <div className="w-8 h-8 bg-[var(--color-red-dim)] rounded-sm flex items-center justify-center transform rotate-45 shadow-[0_0_15px_rgba(139,0,0,0.8)] group-hover:shadow-[0_0_25px_rgba(220,38,38,0.8)] transition-shadow duration-300">
-                <div className="w-4 h-4 bg-black rounded-sm transform -rotate-45" />
+            <div className="flex items-center gap-2 group cursor-pointer">
+              <div className="w-6 h-6 bg-[var(--color-red-dim)] rounded-sm flex items-center justify-center transform rotate-45 border border-[var(--color-red-primary)] transition-transform group-hover:rotate-90 duration-500">
+                <div className="w-3 h-3 bg-black rounded-sm transform -rotate-45 group-hover:rotate-0 transition-transform duration-500" />
               </div>
-              <span className="font-bebas text-3xl tracking-widest text-glow">APEX</span>
+              <span className="font-bebas text-2xl tracking-widest text-[var(--color-red-primary)] hidden md:block">
+                APEX
+              </span>
             </div>
           </Link>
 
-          <div className="hidden md:flex items-center gap-6 font-sans font-medium text-sm text-gray-300">
-            {navItems.map((item) => {
-              const Icon = item.icon;
-              return (
-                <MagneticWrapper key={item.name}>
-                  <Link
-                    href={item.href}
-                    className="flex items-center gap-1.5 hover:text-white transition-colors duration-200 uppercase tracking-wider"
-                  >
-                    <Icon size={14} className="opacity-70" />
-                    {item.name}
-                  </Link>
-                </MagneticWrapper>
-              );
-            })}
-
-            <motion.div
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.98 }}
-              transition={{ type: "spring", stiffness: 300, damping: 15 }}
-            >
+          {/* Desktop Nav Links (Glass Pill Container) */}
+          <div className="hidden lg:flex items-center gap-2 glass-pill px-6 py-2">
+            {navItems.map((item) => (
               <Link
-                href="/onboarding"
-                className="bg-[var(--color-red-primary)] text-black font-bold px-6 py-2.5 rounded-sm uppercase tracking-widest text-sm inline-block
-                  shadow-[0_0_20px_rgba(220,38,38,0.4),0_0_40px_rgba(220,38,38,0.1)]
-                  hover:shadow-[0_0_30px_rgba(220,38,38,0.7),0_0_60px_rgba(220,38,38,0.3)]
-                  hover:bg-[var(--color-red-glow)]
-                  transition-all duration-300"
+                key={item.name}
+                href={item.href}
+                className="px-4 py-1 text-sm font-inter text-gray-300 hover:text-white transition-colors relative group"
               >
-                START TRAINING
+                {item.name}
+                <div className="absolute bottom-0 left-0 w-full h-[1px] bg-[var(--color-red-primary)] scale-x-0 group-hover:scale-x-100 origin-left transition-transform duration-300" />
               </Link>
-            </motion.div>
+            ))}
+          </div>
+
+          {/* Get Started Button */}
+          <div className="hidden lg:block">
+            <Link href="/onboarding" className="btn-pill-primary text-xs">
+              INITIALIZE PROTOCOL
+            </Link>
           </div>
 
           <button
-            className="md:hidden text-white z-50"
+            className="lg:hidden text-white z-50"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             aria-label="Toggle menu"
           >
@@ -136,6 +76,7 @@ export default function Navbar() {
         </div>
       </motion.nav>
 
+      {/* Mobile Menu */}
       <AnimatePresence>
         {mobileMenuOpen && (
           <motion.div
@@ -143,53 +84,44 @@ export default function Navbar() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
-            className="fixed inset-0 z-40 md:hidden"
+            className="fixed inset-0 z-40 lg:hidden"
           >
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="absolute inset-0 bg-black/80 backdrop-blur-xl"
+            <div
+              className="absolute inset-0 bg-black/90 backdrop-blur-md"
               onClick={() => setMobileMenuOpen(false)}
             />
             <motion.div
               initial={{ x: "100%" }}
               animate={{ x: 0 }}
               exit={{ x: "100%" }}
-              transition={{ type: "spring", stiffness: 200, damping: 25 }}
-              className="absolute top-0 right-0 h-full w-72 bg-black/95 backdrop-blur-xl border-l border-white/5 p-8 flex flex-col gap-6"
+              transition={{ type: "tween", duration: 0.3, ease: "easeOut" }}
+              className="absolute top-0 right-0 h-full w-72 glass-panel border-r-0 border-t-0 border-b-0 rounded-l-2xl rounded-r-none p-8 flex flex-col gap-6"
             >
               <div className="flex items-center gap-2 mb-8">
-                <div className="w-8 h-8 bg-[var(--color-red-dim)] rounded-sm flex items-center justify-center transform rotate-45 shadow-[0_0_15px_rgba(139,0,0,0.8)]">
-                  <div className="w-4 h-4 bg-black rounded-sm transform -rotate-45" />
+                <div className="w-8 h-8 bg-[var(--color-red-dim)] flex items-center justify-center transform rotate-45 border border-[var(--color-red-primary)]">
+                  <div className="w-4 h-4 bg-black transform -rotate-45" />
                 </div>
-                <span className="font-bebas text-3xl tracking-widest text-glow">APEX</span>
+                <span className="font-bebas text-3xl tracking-widest text-[var(--color-red-primary)]">APEX</span>
               </div>
 
-              {navItems.map((item) => {
-                const Icon = item.icon;
-                return (
-                  <Link
-                    key={item.name}
-                    href={item.href}
-                    onClick={() => setMobileMenuOpen(false)}
-                    className="flex items-center gap-3 text-xl font-bebas tracking-wider text-gray-300 hover:text-white transition-colors"
-                  >
-                    <Icon size={18} className="text-[var(--color-red-dim)]" />
-                    {item.name}
-                  </Link>
-                );
-              })}
-
-              <div className="mt-auto pt-6 border-t border-white/5">
+              {navItems.map((item) => (
                 <Link
-                href="/onboarding"
+                  key={item.name}
+                  href={item.href}
                   onClick={() => setMobileMenuOpen(false)}
-                  className="block w-full bg-[var(--color-red-primary)] hover:bg-[var(--color-red-glow)] text-black font-bold px-6 py-3 rounded-sm uppercase tracking-widest text-center
-                    shadow-[0_0_20px_rgba(220,38,38,0.4)]
-                    transition-all duration-300"
+                  className="text-lg font-inter font-medium text-gray-300 hover:text-white transition-colors border-b border-white/10 pb-4"
                 >
-                  START TRAINING
+                  {item.name}
+                </Link>
+              ))}
+
+              <div className="mt-auto pt-6">
+                <Link
+                  href="/onboarding"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="btn-pill-primary w-full text-center block"
+                >
+                  INITIALIZE PROTOCOL
                 </Link>
               </div>
             </motion.div>
